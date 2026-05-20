@@ -174,7 +174,7 @@ const SignupPage = () => {
             Join Our <span className="text-orange-500">Community</span>
           </h2>
           <p className="text-gray-500">
-            Connect with pets who need a loving forever home.
+            connect with pets who need a loving forever home.
           </p>
         </div>
       </div>
