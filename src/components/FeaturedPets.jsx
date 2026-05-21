@@ -18,7 +18,7 @@ const FeaturedPets = async () => {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/pets/featured`,
-      { cache: "no-store" }
+      { next: { revalidate: 3600 } }
     );
     pets = await res.json();
   } catch (error) {

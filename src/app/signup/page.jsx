@@ -168,7 +168,7 @@ const SignupPage = () => {
       <div className="hidden lg:flex flex-1 bg-orange-50 items-center justify-center p-10">
         <div className="text-center">
           <div className="relative w-80 h-80 mx-auto mb-6">
-            <Image src="/hero-banner-pets.png" alt="Pets" fill className="object-contain" />
+            <Image src="/hero-banner-pets6.png" alt="Pets" fill className="object-contain" />
           </div>
           <h2 className="text-3xl font-extrabold text-gray-900 mb-2">
             Join Our <span className="text-orange-500">Community</span>
