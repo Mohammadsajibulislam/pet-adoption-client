@@ -25,9 +25,18 @@ const AddPetPage = () => {
     const formData = new FormData(e.currentTarget);
     const petData = Object.fromEntries(formData.entries());
     petData.ownerEmail = user?.email;
+    petData.adoptionFee = Number(petData.adoptionFee);
+    petData.age = Number(petData.age);
 
     try {
       const { data: tokenData } = await authClient.token();
+      
+      if (!tokenData?.token) {
+        toast.error("Authentication failed. Please login again.");
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/pets`, {
         method: "POST",
         headers: {
@@ -37,13 +46,21 @@ const AddPetPage = () => {
         body: JSON.stringify(petData),
       });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || `Server error: ${res.status}`);
+      }
+
       const data = await res.json();
       if (data.insertedId) {
         toast.success("Pet added successfully!");
         router.push("/dashboard/my-listings");
+      } else {
+        toast.error("Failed to add pet. Please try again.");
       }
     } catch (error) {
-      toast.error("Something went wrong.");
+      console.error("Add pet error:", error);
+      toast.error(error?.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
