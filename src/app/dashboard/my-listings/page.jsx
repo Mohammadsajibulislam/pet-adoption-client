@@ -26,7 +26,10 @@ const MyListingsPage = () => {
   const [editLoading, setEditLoading] = useState(false);
 
   const fetchMyPets = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(

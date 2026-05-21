@@ -19,7 +19,10 @@ const MyRequestsPage = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
 
   const fetchRequests = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data: tokenData } = await authClient.token();
