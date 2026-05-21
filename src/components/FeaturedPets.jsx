@@ -20,15 +20,19 @@ const FeaturedPets = async () => {
       `${process.env.NEXT_PUBLIC_SERVER_URL}/pets/featured`,
       { next: { revalidate: 3600 } }
     );
-    pets = await res.json();
+
+    if (res.ok) {
+      const data = await res.json();
+      pets = Array.isArray(data) ? data : [];
+    }
   } catch (error) {
     console.error("Failed to fetch featured pets:", error);
+    pets = [];
   }
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-16">
 
-      {/* Header */}
       <div className="flex items-end justify-between mb-8">
         <div>
           <div className="flex items-center gap-2 text-orange-500 text-sm font-semibold uppercase tracking-widest mb-1">
@@ -38,6 +42,9 @@ const FeaturedPets = async () => {
           <h2 className="text-4xl font-extrabold text-gray-900">
             Meet Some Of Our Pets
           </h2>
+          <p className="text-gray-500 mt-1">
+            Meet some of our adorable pets looking for a loving home.
+          </p>
         </div>
         <Link href="/all-pets">
           <button className="hidden md:flex items-center gap-1 border border-orange-200 text-orange-500 hover:bg-orange-50 px-4 py-2 rounded-lg text-sm font-semibold transition cursor-pointer">
@@ -46,7 +53,6 @@ const FeaturedPets = async () => {
         </Link>
       </div>
 
-      {/* Pets Grid */}
       {pets.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <MdPets size={48} className="mx-auto mb-3 text-gray-200" />
@@ -60,22 +66,18 @@ const FeaturedPets = async () => {
               key={pet._id}
               className="border rounded-2xl overflow-hidden hover:shadow-lg transition group bg-white"
             >
-              {/* Image */}
               <div className="relative overflow-hidden h-44">
                 <img
                   src={pet.imageUrl}
                   alt={pet.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                 />
-                {/* Species Badge */}
-                <span className="absolute bottom-2 left-2 bg-orange-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                <span className="absolute bottom-2 left-2 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
                   {speciesIcon[pet.species]} {pet.species}
                 </span>
-                {/* Heart Button */}
                 <button className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:text-red-400 transition cursor-pointer">
                   <FaRegHeart size={14} className="text-gray-400" />
                 </button>
-                {/* Adopted Badge */}
                 {pet.status === "adopted" && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                     <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -85,9 +87,9 @@ const FeaturedPets = async () => {
                 )}
               </div>
 
-              {/* Info */}
               <div className="p-3">
                 <h3 className="font-bold text-gray-900 text-base">{pet.name}</h3>
+                <p className="text-gray-400 text-xs">{pet.breed}</p>
                 <div className="flex items-center gap-1 text-gray-400 text-xs mt-0.5">
                   <LuMapPin size={11} /> {pet.location}
                 </div>
@@ -125,7 +127,6 @@ const FeaturedPets = async () => {
         ))}
       </div>
 
-      {/* Mobile View All */}
       <div className="text-center mt-8 md:hidden">
         <Link href="/all-pets">
           <button className="border-2 border-orange-400 text-orange-500 px-8 py-3 font-semibold rounded-lg hover:bg-orange-50 transition cursor-pointer">
