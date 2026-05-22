@@ -51,8 +51,14 @@ const MyListingsPage = () => {
   const fetchRequests = async (petId) => {
     setRequestsLoading(true);
     try {
+      const { data: tokenData } = await authClient.token();
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/requests/pet/${petId}`
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/requests/pet/${petId}`,
+        {
+          headers: {
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        }
       );
       const data = await res.json();
       setRequests(data);
