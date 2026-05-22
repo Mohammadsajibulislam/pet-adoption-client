@@ -52,7 +52,7 @@ const AddPetPage = () => {
       }
 
       const data = await res.json();
-      if (data.insertedId) {
+      if (data.id) {
         toast.success("Pet added successfully!");
         router.push("/dashboard/my-listings");
       } else {

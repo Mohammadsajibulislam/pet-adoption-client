@@ -310,7 +310,7 @@ const PetDetailsPage = () => {
           </div>
 
           {/* Adopt Responsibly */}
-          <div className="border rounded-2xl p-5 bg-orange-50 border-orange-100">
+          {/* <div className="border rounded-2xl p-5 bg-orange-50 border-orange-100">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
                 <FaShieldAlt className="text-orange-500" size={18} />
@@ -330,7 +330,7 @@ const PetDetailsPage = () => {
                 className="object-cover"
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
