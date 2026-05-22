@@ -86,7 +86,7 @@ const Banner = () => {
           <div className="relative z-10 w-full max-w-xs md:max-w-md">
             <div className="relative h-56 md:h-96 bg-orange-100 rounded-[32px] overflow-hidden">
               <Image
-                src="/hero-banner-pets.png"
+                src="/hero-banner-pets6.png"
                 alt="Hero pets"
                 fill
                 className="object-cover object-top"
