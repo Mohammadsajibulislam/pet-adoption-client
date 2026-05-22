@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { MdPets, MdLock } from "react-icons/md";
 import { FaLightbulb } from "react-icons/fa";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const speciesList = ["Dog", "Cat", "Bird", "Rabbit", "Others"];
 const genderList = ["Male", "Female"];
@@ -14,9 +15,25 @@ const vaccinationList = ["Fully Vaccinated", "Partially Vaccinated", "Not Vaccin
 
 const AddPetPage = () => {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isPending && !user) {
+      router.push("/login");
+    }
+  }, [user, isPending, router]);
+
+  if (isPending) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <AiOutlineLoading3Quarters size={36} className="text-orange-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +47,7 @@ const AddPetPage = () => {
 
     try {
       const { data: tokenData } = await authClient.token();
-      
+
       if (!tokenData?.token) {
         toast.error("Authentication failed. Please login again.");
         setLoading(false);
@@ -72,7 +89,6 @@ const AddPetPage = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center">
           <MdPets size={24} className="text-orange-500" />
@@ -84,11 +100,8 @@ const AddPetPage = () => {
       </div>
 
       <div className="flex gap-6 flex-col lg:flex-row">
-
-        {/* Form */}
         <div className="flex-1 border rounded-2xl p-6 bg-white">
           <form onSubmit={onSubmit} className="space-y-5">
-
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className={labelClass}>Pet Name <span className="text-red-400">*</span></label>
@@ -169,7 +182,6 @@ const AddPetPage = () => {
               />
             </div>
 
-            {/* Owner Email */}
             <div className="bg-gray-50 border rounded-xl px-4 py-3 flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">Owner Email</p>
@@ -200,7 +212,6 @@ const AddPetPage = () => {
           </form>
         </div>
 
-        {/* Tips Sidebar */}
         <div className="lg:w-64 space-y-4">
           <div className="border rounded-2xl p-5 bg-orange-50 border-orange-100">
             <div className="flex items-center gap-2 mb-3">

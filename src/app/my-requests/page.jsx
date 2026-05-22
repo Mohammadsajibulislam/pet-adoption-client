@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -10,13 +11,21 @@ import { FaTimes } from "react-icons/fa";
 import { BsXCircle } from "react-icons/bs";
 
 const MyRequestsPage = () => {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
+  const router = useRouter();
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
+
+  // Auth check
+  useEffect(() => {
+    if (!isPending && !user) {
+      router.push("/login");
+    }
+  }, [user, isPending, router]);
 
   const fetchRequests = async () => {
     if (!user) {
@@ -31,7 +40,7 @@ const MyRequestsPage = () => {
         { headers: { authorization: `Bearer ${tokenData?.token}` } }
       );
       const data = await res.json();
-      setRequests(data);
+      setRequests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
     } finally {
@@ -40,7 +49,9 @@ const MyRequestsPage = () => {
   };
 
   useEffect(() => {
-    fetchRequests();
+    if (user) {
+      fetchRequests();
+    }
   }, [user]);
 
   const handleCancel = async () => {
@@ -68,13 +79,18 @@ const MyRequestsPage = () => {
     rejected: { label: "Rejected", class: "bg-red-100 text-red-500" },
   };
 
-  if (loading) {
+  if (isPending || loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <AiOutlineLoading3Quarters size={36} className="text-orange-500 animate-spin" />
+        <AiOutlineLoading3Quarters
+          size={36}
+          className="text-orange-500 animate-spin"
+        />
       </div>
     );
   }
+
+  if (!user) return null;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -86,14 +102,18 @@ const MyRequestsPage = () => {
           Adoption Tracker
         </div>
         <h1 className="text-3xl font-extrabold text-gray-900">My Requests</h1>
-        <p className="text-gray-500 mt-1">Track the status of your adoption requests.</p>
+        <p className="text-gray-500 mt-1">
+          Track the status of your adoption requests.
+        </p>
       </div>
 
       {requests.length === 0 ? (
         <div className="border rounded-2xl text-center py-20 text-gray-400">
           <MdPets size={48} className="mx-auto mb-3 text-gray-200" />
           <p className="text-xl font-semibold">No requests yet</p>
-          <p className="text-sm mt-1">Browse pets and submit an adoption request!</p>
+          <p className="text-sm mt-1">
+            Browse pets and submit an adoption request!
+          </p>
           <Link href="/all-pets">
             <button className="mt-5 bg-orange-500 text-white px-6 py-2.5 text-sm font-semibold cursor-pointer hover:bg-orange-600 transition rounded-xl">
               Browse Pets
@@ -103,7 +123,10 @@ const MyRequestsPage = () => {
       ) : (
         <div className="space-y-4">
           {requests.map((req) => (
-            <div key={req._id} className="border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white hover:shadow-sm transition">
+            <div
+              key={req._id}
+              className="border rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white hover:shadow-sm transition"
+            >
               <img
                 src={req.petImage}
                 alt={req.petName}
@@ -111,21 +134,31 @@ const MyRequestsPage = () => {
               />
 
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900 text-lg">{req.petName}</h3>
+                <h3 className="font-bold text-gray-900 text-lg">
+                  {req.petName}
+                </h3>
                 <div className="flex flex-wrap gap-3 text-sm text-gray-400 mt-1">
                   <span>
-                    Requested: {new Date(req.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric", month: "short", day: "numeric",
+                    Requested:{" "}
+                    {new Date(req.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
                     })}
                   </span>
                   <span>•</span>
                   <span>
-                    Pickup: {new Date(req.pickupDate).toLocaleDateString("en-US", {
-                      year: "numeric", month: "short", day: "numeric",
+                    Pickup:{" "}
+                    {new Date(req.pickupDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
                     })}
                   </span>
                 </div>
-                <span className={`inline-block mt-2 text-xs font-bold px-3 py-1 rounded-full capitalize ${statusConfig[req.status]?.class}`}>
+                <span
+                  className={`inline-block mt-2 text-xs font-bold px-3 py-1 rounded-full capitalize ${statusConfig[req.status]?.class}`}
+                >
                   {statusConfig[req.status]?.label}
                 </span>
               </div>
@@ -138,7 +171,10 @@ const MyRequestsPage = () => {
                 </Link>
                 {req.status === "pending" && (
                   <button
-                    onClick={() => { setCancellingId(req._id); setShowCancelModal(true); }}
+                    onClick={() => {
+                      setCancellingId(req._id);
+                      setShowCancelModal(true);
+                    }}
                     className="flex items-center gap-1.5 border border-red-200 text-red-500 px-3 py-1.5 text-xs font-semibold hover:bg-red-50 transition cursor-pointer rounded-lg"
                   >
                     <BsXCircle size={13} /> Cancel
@@ -156,7 +192,10 @@ const MyRequestsPage = () => {
           <div className="bg-white rounded-2xl w-full max-w-sm p-6">
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-xl font-bold">Cancel Request</h2>
-              <button onClick={() => setShowCancelModal(false)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
                 <FaTimes size={18} />
               </button>
             </div>
